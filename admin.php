@@ -21,10 +21,9 @@ $db_pass = 'gVE8SU0gcjT7rO0e'; // 💡 発行したPASSWORDに変更してくだ
 $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
 
 $options = [
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_BOTH,
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    // TiDB Cloud用のSSL接続設定（証明書検証をスキップして安全に接続）
-    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+    PDO::MYSQL_ATTR_SSL_CA => __DIR__ . '/ca.pem', // 💡 ダウンロードした証明書のファイルパスを指定
+    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true,
 ];
 
 try {
