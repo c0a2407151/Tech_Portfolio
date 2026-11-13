@@ -6,14 +6,23 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-// MySQL接続
-$dsn = 'mysql:host=localhost;dbname=bakery_demo;charset=utf8mb4';
-$db_user = 'user1'; // 環境に合わせて変更してください
-$db_pass = 'passwordA1!';     // 環境に合わせて変更してください
+// ⚙️ TiDB Cloud への接続設定
+$host = 'gateway01.ap-northeast-1.prod.aws.tidbcloud.com'; // 💡 あなたのHOSTに変更してください
+$port = '4000';
+$dbname = 'bakery_demo';
+$db_user = 'ここにユーザー名を入力'; // 💡 あなたのUSERNAMEに変更してください
+$db_pass = 'ここにパスワードを入力'; // 💡 発行したPASSWORDに変更してください
+
+$dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
+
+$options = [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    // TiDB Cloud用のSSL接続設定
+    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+];
 
 try {
-    $db = new PDO($dsn, $db_user, $db_pass);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $db = new PDO($dsn, $db_user, $db_pass, $options);
 
     // 1. クレジットカード情報の更新（POSTされた場合）
     if (isset($_POST['card_num'])) {
@@ -30,11 +39,10 @@ try {
         ]);
     }
 
-    // 2. 【新規追加】予約情報を reservations テーブルに保存する処理
+    // 2. 予約情報を reservations テーブルに保存する処理
     $user_cart = $_SESSION['cart'][$_SESSION['user']] ?? [];
     if (!empty($user_cart) && isset($_POST['pickup_date']) && isset($_POST['pickup_time'])) {
         
-        // 複数商品を一括でインサートするための準備
         $ins_stmt = $db->prepare("
             INSERT INTO reservations (username, product_id, product_name, product_price, pickup_date, pickup_time)
             VALUES (:username, :product_id, :product_name, :product_price, :pickup_date, :pickup_time)
@@ -53,7 +61,6 @@ try {
     }
 
 } catch(PDOException $e){
-    // デバッグ用（本番環境では die させずログに出すのが望ましいです）
     die("エラーが発生しました: " . $e->getMessage());
 }
 
@@ -244,7 +251,7 @@ body{
         <div class="button-area">
 
             <a href="download.php" class="btn btn-green">
-                  電子領収書をダウンロード
+                 電子領収書をダウンロード
             </a>
 
             <a href="shop.php" class="btn">
