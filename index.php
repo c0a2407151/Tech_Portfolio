@@ -6,14 +6,23 @@ error_reporting(E_ALL);
 
 session_start();
 
-// ⚙️ MySQLへの接続設定（環境に合わせて root や パスワード を変更してください）
-$dsn = 'mysql:host=localhost;dbname=bakery_demo;charset=utf8mb4';
-$db_user = 'user1';
-$db_pass = 'passwordA1!'; // パスワードがある場合は入力
+// ⚙️ TiDB Cloud への接続設定
+$host = 'gateway01.ap-northeast-1.prod.aws.tidbcloud.com'; // 💡 あなたのHOSTに変更してください
+$port = '4000';
+$dbname = 'bakery_demo';
+$db_user = 'ここにユーザー名を入力'; // 💡 あなたのUSERNAMEに変更してください
+$db_pass = 'ここにパスワードを入力'; // 💡 発行したPASSWORDに変更してください
+
+$dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
+
+$options = [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    // TiDB Cloud用のSSL接続設定
+    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+];
 
 try {
-    $db = new PDO($dsn, $db_user, $db_pass);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $db = new PDO($dsn, $db_user, $db_pass, $options);
 } catch (PDOException $e) {
     die("データベース接続失敗: " . $e->getMessage());
 }
@@ -97,7 +106,7 @@ if (isset($_POST['register'])) {
         <p style="font-size:12px; color:gray;">※登録しておくと次回以降の決済情報入力が省略されます。</p>
         <p>カード番号: <input type="text" name="reg_card_num" placeholder="1111222233334444" style="width:100%; padding:5px;"></p>
         <p>有効期限: <input type="text" name="reg_card_expiry" placeholder="MM/YY" style="width:45%; padding:5px;"> 
-           CVC: <input type="text" name="reg_card_cvc" placeholder="123" style="width:45%; padding:5px;"></p>
+            CVC: <input type="text" name="reg_card_cvc" placeholder="123" style="width:45%; padding:5px;"></p>
         <p><button type="submit" name="register" style="width:100%; padding:8px; background:#5cb85c; color:white; border:none; border-radius:4px; cursor:pointer;">会員登録する</button></p>
     </form>
 </div>
