@@ -11,16 +11,24 @@ if (!isset($_SESSION['user']) || !isset($_SESSION['is_admin']) || $_SESSION['is_
     exit;
 }
 
-// ⚙️ MySQLへの接続設定
-$dsn = 'mysql:host=localhost;dbname=bakery_demo;charset=utf8mb4';
-$db_user = 'user1'; 
-$db_pass = 'passwordA1!';
+// ⚙️ TiDB Cloud への接続設定
+$host = 'gateway01.ap-northeast-1.prod.aws.tidbcloud.com'; // 💡 あなたのHOSTに変更してください
+$port = '4000';
+$dbname = 'bakery_demo';
+$db_user = 'ELLTpexKnvR5Ziy.root'; // 💡 あなたのUSERNAMEに変更してください
+$db_pass = 'gVE8SU0gcjT7rO0e'; // 💡 発行したPASSWORDに変更してください
+
+$dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
+
+$options = [
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_BOTH,
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    // TiDB Cloud用のSSL接続設定（証明書検証をスキップして安全に接続）
+    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+];
 
 try {
-    $db = new PDO($dsn, $db_user, $db_pass);
-    // 連想配列形式（キー名）だけでなく、番号（0, 1, 2...）でも値を取得できるように設定
-    $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_BOTH);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $db = new PDO($dsn, $db_user, $db_pass, $options);
 } catch (PDOException $e) {
     die("データベース接続失敗: " . $e->getMessage());
 }
@@ -144,7 +152,6 @@ if ($search_keyword !== '') {
         <table>
             <thead>
                 <tr>
-                    <!-- reservationsが全8列だとした場合の、左からの順序でのヘッダー定義 -->
                     <th>id</th>
                     <th>username</th>
                     <th>quantity</th>
@@ -158,10 +165,6 @@ if ($search_keyword !== '') {
             <tbody>
                 <?php foreach ($detail_res as $row): ?>
                     <tr>
-                        <!-- 💡 ここが改造ポイント！
-                             キー名(idやproduct_priceなど)での指定を完全にやめ、
-                             データベースから返ってきたデータの「左からの順番 (0〜7)」でそのまま出力します。
-                             また、number_format() も使わないため、文字列が入ってきても一切クラッシュしません。 -->
                         <td><?php echo isset($row[0]) ? htmlspecialchars($row[0]) : ''; ?></td>
                         <td><?php echo isset($row[1]) ? htmlspecialchars($row[1]) : ''; ?></td>
                         <td><strong><?php echo isset($row[2]) ? htmlspecialchars($row[2]) : ''; ?></strong></td>
