@@ -17,8 +17,8 @@ $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
 
 $options = [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    // TiDB Cloud用のSSL接続設定
-    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+    PDO::MYSQL_ATTR_SSL_CA => __DIR__ . '/ca.pem', // 💡 ダウンロードした証明書のファイルパスを指定
+    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true,
 ];
 
 try {
