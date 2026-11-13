@@ -10,8 +10,8 @@ if (!isset($_SESSION['user'])) {
 $host = 'gateway01.ap-northeast-1.prod.aws.tidbcloud.com'; // 💡 あなたのHOSTに変更してください
 $port = '4000';
 $dbname = 'bakery_demo';
-$db_user = 'ここにユーザー名を入力'; // 💡 あなたのUSERNAMEに変更してください
-$db_pass = 'ここにパスワードを入力'; // 💡 発行したPASSWORDに変更してください
+$db_user = 'ELLTpexKnvR5Ziy.root'; // 💡 あなたのUSERNAMEに変更してください
+$db_pass = 'gVE8SU0gcjT7rO0e'; // 💡 発行したPASSWORDに変更してください
 
 $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
 
