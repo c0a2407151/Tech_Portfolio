@@ -6,14 +6,23 @@ session_start();
 #    exit;
 #}
 
-// ⚙️ MySQLへの接続設定
-$dsn = 'mysql:host=localhost;dbname=bakery_demo;charset=utf8mb4';
-$db_user = 'user1';
-$db_pass = 'passwordA1!';
+// ⚙️ TiDB Cloud への接続設定
+$host = 'gateway01.ap-northeast-1.prod.aws.tidbcloud.com'; // 💡 あなたのHOSTに変更してください
+$port = '4000';
+$dbname = 'bakery_demo';
+$db_user = 'ここにユーザー名を入力'; // 💡 あなたのUSERNAMEに変更してください
+$db_pass = 'ここにパスワードを入力'; // 💡 発行したPASSWORDに変更してください
+
+$dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
+
+$options = [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    // TiDB Cloud用のSSL接続設定
+    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+];
 
 try {
-    $db = new PDO($dsn, $db_user, $db_pass);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $db = new PDO($dsn, $db_user, $db_pass, $options);
 } catch (PDOException $e) {
     die("データベース接続失敗: " . $e->getMessage());
 }
